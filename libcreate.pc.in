@@ -1,0 +1,10 @@
+@PREFIX@
+@EXEC_PREFIX@
+@LIBDIR@
+@INCLUDEDIR@
+
+Name: libcreate
+Description: C library providing create(), the correctly spelled creat()
+Version: @VERSION@
+Libs: -L${libdir} -lcreate
+Cflags: -I${includedir}
