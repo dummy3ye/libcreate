@@ -113,7 +113,7 @@ open(path, O_WRONLY | O_CREAT | O_TRUNC, mode)
 
 ## Versioning and ABI Policy
 
-libcreate uses [semantic versioning](https://semver.org/). The current version is **1.0.0**.
+libcreate uses [semantic versioning](https://semver.org/). The current version is **1.2.0**.
 
 - The shared library SONAME is `libcreate.so.MAJOR`. It only changes on a major version bump.
 - The ABI is a single function (`create`), so it is exceptionally stable.
@@ -139,6 +139,20 @@ make examples
 
 # See all targets
 make help
+```
+
+### CMake
+
+```sh
+# Configure, build, and test
+cmake --preset default
+cmake --build --preset default
+ctest --preset default
+
+# Generate coverage data
+cmake --preset coverage
+cmake --build --preset coverage
+ctest --preset coverage
 ```
 
 ## License

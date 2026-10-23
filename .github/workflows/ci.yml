@@ -100,3 +100,36 @@ jobs:
             echo "Already non-root, running directly"
             make test V=1
           fi
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install coverage tools
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y lcov
+
+      - name: Configure coverage build
+        run: cmake --preset coverage
+
+      - name: Build and run tests
+        run: |
+          cmake --build --preset coverage
+          ctest --preset coverage
+
+      - name: Collect coverage
+        run: |
+          lcov --capture \
+            --directory build/cmake-coverage \
+            --output-file coverage.info \
+            --ignore-errors mismatch \
+            --exclude '/usr/*' \
+            --exclude '*/tests/*'
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.info
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
