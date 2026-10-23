@@ -1,0 +1,112 @@
+.\" create.3 - man page for the create() function (libcreate)
+.\"
+.\" SPDX-License-Identifier: MIT
+.TH CREATE 3 "2026-10-23" "libcreate 1.0.0" "Library Functions Manual"
+.SH NAME
+create \- create or truncate a file (the correctly spelled creat)
+.SH SYNOPSIS
+.nf
+.B #include <create.h>
+.PP
+.BI "int create(const char *" path ", mode_t " mode );
+.fi
+.SH DESCRIPTION
+.B create()
+creates a new file or truncates an existing one.
+It is equivalent to calling:
+.PP
+.in +4n
+.nf
+open(path, O_WRONLY | O_CREAT | O_TRUNC, mode)
+.fi
+.in
+.PP
+This provides identical behavior to the POSIX
+.BR creat (2)
+function, but with the correct spelling.
+.PP
+If the file named by
+.I path
+does not exist, it is created with permissions
+.IR mode " & ~" umask .
+.PP
+If the file already exists, it is truncated to zero length.
+Its existing permissions are
+.B not
+changed by
+.IR mode .
+.PP
+The returned file descriptor is opened for writing only.
+Attempting to read from it will fail with
+.BR EBADF .
+.PP
+Passing
+.B NULL
+as
+.I path
+is undefined behavior, as with
+.BR creat (2).
+.SH RETURN VALUE
+On success, a non-negative file descriptor is returned.
+.PP
+On failure, \-1 is returned and
+.I errno
+is set to indicate the error.
+.SH ERRORS
+.TP
+.B EACCES
+Permission denied (search permission denied on a path component, or
+write permission denied on the parent directory).
+.TP
+.B EISDIR
+.I path
+refers to an existing directory.
+.TP
+.B EMFILE
+The per-process limit on open file descriptors has been reached.
+.TP
+.B ENAMETOOLONG
+.I path
+or a component of
+.I path
+is too long.
+.TP
+.B ENFILE
+The system-wide limit on open files has been reached.
+.TP
+.B ENOENT
+A directory component of
+.I path
+does not exist, or
+.I path
+is an empty string.
+.TP
+.B ENOSPC
+No space left on the device containing the file.
+.TP
+.B ENOTDIR
+A component of the path prefix of
+.I path
+is not a directory.
+.SH NOTES
+The name
+.B create
+comes from Ken Thompson's famous remark about the design of UNIX:
+.PP
+.RS
+.I "What's one of the things I'd do differently if I were redesigning the UNIX system? I'd spell creat with an \[oq]e\[cq]."
+.RE
+.PP
+This library exists to finally give that missing \[oq]e\[cq] a home.
+.PP
+.B create()
+is thread-safe and async-signal-safe to the same degree as
+.BR open (2).
+.SH SEE ALSO
+.BR open (2),
+.BR creat (2),
+.BR close (2),
+.BR umask (2)
+.SH HISTORY
+.B libcreate
+1.0.0, released 2026.
