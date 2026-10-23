@@ -15,8 +15,8 @@
 /* Library version */
 #define LIBCREATE_VERSION_MAJOR 1
 #define LIBCREATE_VERSION_MINOR 0
-#define LIBCREATE_VERSION_PATCH 0
-#define LIBCREATE_VERSION       "1.0.0"
+#define LIBCREATE_VERSION_PATCH 1
+#define LIBCREATE_VERSION       "1.0.1"
 
 /* Symbol visibility */
 #if defined(__GNUC__) && __GNUC__ >= 4
