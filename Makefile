@@ -46,6 +46,11 @@ UNAME_S := $(shell uname -s)
 PROJ_CFLAGS   := -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -O2
 PROJ_CPPFLAGS := -D_POSIX_C_SOURCE=200809L -D_FILE_OFFSET_BITS=64 -Iinclude
 
+# macOS hides BSD extensions such as mkdtemp() behind _DARWIN_C_SOURCE
+ifeq ($(UNAME_S),Darwin)
+  PROJ_CPPFLAGS += -D_DARWIN_C_SOURCE
+endif
+
 # Treat warnings as errors in CI (set WERROR=1)
 ifdef WERROR
 PROJ_CFLAGS += -Werror
