@@ -6,12 +6,12 @@
  * resulting file size, and resulting file mode.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "create.h"
 #include "harness.h"
@@ -20,9 +20,7 @@
  * Compare a create() call vs. a creat() call on two separate paths
  * for the same scenario.
  */
-static void compare(const char *label,
-                    const char *path_create, const char *path_creat,
-                    mode_t mode)
+static void compare(const char *label, const char *path_create, const char *path_creat, mode_t mode)
 {
     struct stat st_c, st_r;
     int has_stat_c, has_stat_r;
@@ -47,8 +45,7 @@ static void compare(const char *label,
     int ok_c = (fd_c >= 0);
     int ok_r = (fd_r >= 0);
     if (ok_c != ok_r) {
-        fprintf(stderr, "  FAIL parity [%s]: create()=%d creat()=%d\n",
-                label, fd_c, fd_r);
+        fprintf(stderr, "  FAIL parity [%s]: create()=%d creat()=%d\n", label, fd_c, fd_r);
         g_fail++;
         return;
     }
@@ -56,8 +53,7 @@ static void compare(const char *label,
 
     if (!ok_c) {
         /* Both failed — compare errno */
-        TEST_ASSERT_MSG(err_c == err_r,
-                        "errno mismatch between create() and creat()");
+        TEST_ASSERT_MSG(err_c == err_r, "errno mismatch between create() and creat()");
         return;
     }
 
@@ -67,8 +63,7 @@ static void compare(const char *label,
     if (has_stat_c && has_stat_r) {
         TEST_ASSERT_MSG(st_c.st_size == st_r.st_size, "size mismatch");
         if (fs_honors_perms()) {
-            TEST_ASSERT_MSG((st_c.st_mode & 0777) == (st_r.st_mode & 0777),
-                            "mode mismatch");
+            TEST_ASSERT_MSG((st_c.st_mode & 0777) == (st_r.st_mode & 0777), "mode mismatch");
         }
     }
 }
@@ -91,9 +86,15 @@ void test_parity(void)
     {
         int fd;
         fd = open(p1, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd >= 0) { (void)write(fd, "data", 4); close(fd); }
+        if (fd >= 0) {
+            (void)write(fd, "data", 4);
+            close(fd);
+        }
         fd = open(p2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd >= 0) { (void)write(fd, "data", 4); close(fd); }
+        if (fd >= 0) {
+            (void)write(fd, "data", 4);
+            close(fd);
+        }
     }
     compare("existing file", p1, p2, 0644);
 

@@ -12,31 +12,30 @@ extern int g_pass;
 extern int g_fail;
 extern int g_skip;
 
-#define TEST_ASSERT(expr)                                                     \
-    do {                                                                      \
-        if (expr) {                                                           \
-            g_pass++;                                                         \
-        } else {                                                              \
-            g_fail++;                                                         \
-            fprintf(stderr, "  FAIL: %s:%d: %s\n", __FILE__, __LINE__, #expr); \
-        }                                                                     \
+#define TEST_ASSERT(expr)                                                                          \
+    do {                                                                                           \
+        if (expr) {                                                                                \
+            g_pass++;                                                                              \
+        } else {                                                                                   \
+            g_fail++;                                                                              \
+            fprintf(stderr, "  FAIL: %s:%d: %s\n", __FILE__, __LINE__, #expr);                     \
+        }                                                                                          \
     } while (0)
 
-#define TEST_ASSERT_MSG(expr, msg)                                            \
-    do {                                                                      \
-        if (expr) {                                                           \
-            g_pass++;                                                         \
-        } else {                                                              \
-            g_fail++;                                                         \
-            fprintf(stderr, "  FAIL: %s:%d: %s (%s)\n",                       \
-                    __FILE__, __LINE__, #expr, msg);                           \
-        }                                                                     \
+#define TEST_ASSERT_MSG(expr, msg)                                                                 \
+    do {                                                                                           \
+        if (expr) {                                                                                \
+            g_pass++;                                                                              \
+        } else {                                                                                   \
+            g_fail++;                                                                              \
+            fprintf(stderr, "  FAIL: %s:%d: %s (%s)\n", __FILE__, __LINE__, #expr, msg);           \
+        }                                                                                          \
     } while (0)
 
-#define TEST_SKIP(msg)                                                        \
-    do {                                                                      \
-        g_skip++;                                                             \
-        fprintf(stderr, "  SKIP: %s\n", msg);                                 \
+#define TEST_SKIP(msg)                                                                             \
+    do {                                                                                           \
+        g_skip++;                                                                                  \
+        fprintf(stderr, "  SKIP: %s\n", msg);                                                      \
     } while (0)
 
 /* Helpers (defined in main.c) */

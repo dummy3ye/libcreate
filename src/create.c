@@ -5,8 +5,8 @@
  * the UNIX system?  I'd spell creat with an 'e'." — Ken Thompson
  */
 
-#include <fcntl.h>
 #include "create.h"
+#include <fcntl.h>
 
 int create(const char *path, mode_t mode)
 {

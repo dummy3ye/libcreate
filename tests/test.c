@@ -2,12 +2,12 @@
  * test.c - Basic functionality tests for create()
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "create.h"
 #include "harness.h"
@@ -40,8 +40,7 @@ void test_basic(void)
         if (fd >= 0)
             close(fd);
         TEST_ASSERT(stat(path, &st) == 0);
-        TEST_ASSERT_MSG((st.st_mode & 0777) == 0751,
-                        "permissions should be exactly 0751");
+        TEST_ASSERT_MSG((st.st_mode & 0777) == 0751, "permissions should be exactly 0751");
     } else {
         TEST_SKIP("filesystem does not honor mode bits");
     }
@@ -56,8 +55,7 @@ void test_basic(void)
         if (fd >= 0)
             close(fd);
         TEST_ASSERT(stat(path, &st) == 0);
-        TEST_ASSERT_MSG((st.st_mode & 0777) == 0644,
-                        "permissions should be 0666 & ~022 = 0644");
+        TEST_ASSERT_MSG((st.st_mode & 0777) == 0644, "permissions should be 0666 & ~022 = 0644");
         umask(old);
     } else {
         TEST_SKIP("filesystem does not honor mode bits");

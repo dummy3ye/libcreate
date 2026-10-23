@@ -2,13 +2,13 @@
  * main.c - Test runner and minimal harness for libcreate
  */
 
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
+#include <unistd.h>
 
 #include "create.h"
 #include "harness.h"
@@ -143,8 +143,7 @@ int main(void)
 
     cleanup_tmpdir();
 
-    printf("\n---\n%d passed, %d failed, %d skipped\n",
-           g_pass, g_fail, g_skip);
+    printf("\n---\n%d passed, %d failed, %d skipped\n", g_pass, g_fail, g_skip);
 
     return g_fail > 0 ? 1 : 0;
 }
