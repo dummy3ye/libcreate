@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify tag matches VERSION
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(cat VERSION)"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match VERSION ($version)"
+            exit 1
+          fi
+          echo "Releasing libcreate $version from tag $GITHUB_REF_NAME"
+
+      - name: Build (warnings as errors)
+        run: make WERROR=1 V=1
+
+      - name: Run tests
+        run: make test V=1
+
+      - name: Run sanitizers
+        run: make sanitize V=1
+
+      - name: Check exported symbols
+        run: make check-symbols V=1
+
+      - name: Build source tarball
+        run: make dist V=1
+
+      - name: Create checksums
+        run: sha256sum libcreate-*.tar.gz > SHA256SUMS
+
+      - name: Extract release notes from CHANGELOG
+        run: |
+          version="$(cat VERSION)"
+          awk -v ver="$version" '
+            index($0, "## [" ver "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "libcreate $version" > RELEASE_NOTES.md
+          fi
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(cat VERSION)"
+          gh release create "$GITHUB_REF_NAME" \
+            "libcreate-$version.tar.gz" \
+            SHA256SUMS \
+            --verify-tag \
+            --title "libcreate $version" \
+            --notes-file RELEASE_NOTES.md

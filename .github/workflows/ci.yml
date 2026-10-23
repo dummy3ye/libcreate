@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        cc: [gcc, clang]
+        include:
+          - os: macos-latest
+            cc: clang
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.os == 'macos-latest' }}
+
+    env:
+      CC: ${{ matrix.cc }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build (warnings as errors)
+        run: make WERROR=1 V=1
+
+      - name: Run tests
+        run: make test V=1
+
+      - name: Run sanitizers
+        if: runner.os == 'Linux'
+        run: make sanitize V=1
+
+      - name: Check exported symbols
+        if: runner.os == 'Linux'
+        run: make check-symbols V=1
+
+      - name: Staged install
+        run: |
+          STAGING=$(mktemp -d)
+          make install DESTDIR="$STAGING" V=1
+          echo "STAGING=$STAGING" >> "$GITHUB_ENV"
+
+      - name: Build example via pkg-config (staged install)
+        run: |
+          export PKG_CONFIG_PATH="$STAGING/usr/local/lib/pkgconfig"
+          export PKG_CONFIG_SYSROOT_DIR="$STAGING"
+          export LD_LIBRARY_PATH="$STAGING/usr/local/lib"
+          export DYLD_LIBRARY_PATH="$STAGING/usr/local/lib"
+          $CC -Wall -Wextra -O2 \
+            $(pkg-config --cflags libcreate) \
+            -o /tmp/hello examples/hello.c \
+            $(pkg-config --libs libcreate) \
+            -Wl,-rpath,"$STAGING/usr/local/lib"
+          /tmp/hello /tmp/hello_output.txt
+          cat /tmp/hello_output.txt
+
+      - name: Vendoring check
+        run: |
+          $CC -std=c99 -Wall -Wextra -Wpedantic -Iinclude \
+            -o /tmp/vendor_test examples/hello.c src/create.c
+          /tmp/vendor_test /tmp/vendor_output.txt
+          cat /tmp/vendor_output.txt
+
+      - name: Uninstall and verify clean
+        run: |
+          make uninstall DESTDIR="$STAGING" V=1
+          # Check that only empty directories remain (or nothing)
+          REMAINING=$(find "$STAGING" -type f 2>/dev/null || true)
+          if [ -n "$REMAINING" ]; then
+            echo "ERROR: files left after uninstall:"
+            echo "$REMAINING"
+            exit 1
+          fi
+          echo "Uninstall clean: no files remaining."
+
+  test-non-root:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: make WERROR=1
+
+      - name: Run tests as non-root
+        run: |
+          echo "Running as user: $(whoami) (uid=$(id -u))"
+          if [ "$(id -u)" -eq 0 ]; then
+            echo "NOTE: Creating non-root user for EACCES test"
+            useradd -m testrunner
+            su testrunner -c "cd $PWD && make test V=1"
+          else
+            echo "Already non-root, running directly"
+            make test V=1
+          fi
